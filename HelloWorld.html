@@ -18,7 +18,7 @@
 <body>
   <div id="todo-app">
     <div>
-      <input type="button" value="全部标为完成" />
+      <input type="button" value="全部标为完成" @click="markAllAsCompleted"/>
       <input type="text" placeholder="添加 todo" v-model="newTodoTitle" @keyup.enter="addTodo" />
     </div>
     <!-- todo list -->
@@ -28,13 +28,16 @@
         <input v-if="!todo.completed" type="button" value="标为完成" @click="markAsCompleted(todo)">
         <input v-else type="button" value="标为未完成" @click="markAsUncompleted(todo)" />
         <input type="button" value="删除" @click="removeTodo(todo)" />
-        <input type="text" value="编辑 todo..." v-if="editedTodo !== null&& editedTodo.id===todo.id" v-model="todo.title"
-          @keyup.enter="editDone(todo)" @keyup.esc="cancelEdit(todo)" />
+        <input type="text" value="编辑 todo..."
+          v-focus="true"
+          v-if="editedTodo !== null&& editedTodo.id===todo.id"
+          v-model="todo.title" @keyup.enter="editDone(todo)" 
+          @keyup.esc="cancelEdit(todo)" />
       </li>
     </ul>
     <!-- end todo list -->
     <div>
-      <span>剩余 3 项未完成 ---</span>
+      <span>剩余 {{ leftTodosCount }} 项未完成 ---</span>
       <span>筛选：
         <input type="button" class="selected" value="全部">
         <input type="button" value="进行中">
@@ -92,6 +95,25 @@
       cancelEdit: function (todo) {
         todo.title = this.editedTodo.title;
         this.editedTodo = null;
+      },
+      markAllAsCompleted: function () {
+        this.todos.map(function (todo) {
+            if (!todo.completed) {
+                todo.completed = true
+            }
+        })
+      }
+    },
+    computed: {
+      leftTodosCount: function () {
+          return this.todos.filter(todo => !todo.completed).length
+      }
+    },
+    directives: {
+      focus: {
+        inserted: function (el) {
+          el.focus()
+        }
       }
     }
   })
