@@ -23,7 +23,7 @@
     </div>
     <!-- todo list -->
     <ul>
-      <li v-for='todo in todos' :key='todo.id'>
+      <li v-for='todo in filteredTodos' :key='todo.id'>
         <span :class="{finished: todo.finished}" @dblclick="editTodo(todo)">{{ todo.title }}</span>
         <input v-if="!todo.completed" type="button" value="标为完成" @click="markAsCompleted(todo)">
         <input v-else type="button" value="标为未完成" @click="markAsUncompleted(todo)" />
@@ -39,9 +39,10 @@
     <div>
       <span>剩余 {{ leftTodosCount }} 项未完成 ---</span>
       <span>筛选：
-        <input type="button" class="selected" value="全部">
-        <input type="button" value="进行中">
-        <input type="button" value="已完成">
+        <input type="button" class="selected" value="全部"
+                @click="intention='all'">
+        <input type="button" value="进行中" @click="intention='ongoing'">
+        <input type="button" value="已完成" @click="intention='finished'">
         <input type="button" value="清除已完成">
         <input type="button" value="清除全部">
       </span>
@@ -62,6 +63,7 @@
         todos: [],
         newTodoTitle: '',
         editedTodo: null,
+        intention: 'all',
       }
     },
     methods: {
@@ -107,7 +109,19 @@
     computed: {
       leftTodosCount: function () {
           return this.todos.filter(todo => !todo.completed).length
-      }
+      },
+
+      filteredTodos: function () {
+        if (this.flag === 'ongoing') {
+                    return this.leftTodos
+                } else if (this.flag === 'finished') {
+                    return this.todos.filter(todo => todo.finished)
+                } else {
+                    // 其它未定义的意图我们为其返回全部 todos，
+                    // 这里面已经包含了 all 意图了
+                    return this.todos
+                }
+            },
     },
     directives: {
       focus: {
