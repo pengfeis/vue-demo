@@ -51,18 +51,44 @@
 
 <script>
 
+  var STORAGE_KEY = 'vue2.x-todo-tutorial';
+  var todoStorage = {
+    fetch: function () {
+      var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      todos.forEach(function (todo, index) {
+        todo.id = index
+      });
+      todoStorage.uid = todos.length;
+      return todos
+    },
+    save: function (todos) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+    }
+  };
+
   let id = 0; // 用于 id 生成
 
   var app = new Vue({
     el: '#todo-app',
     data: function () {
       return {
-        todos: [],
+        todos: todoStorage.fetch(),
         newTodoTitle: '',
         editedTodo: null,
         intention: 'all',
       }
     },
+
+    watch: {
+      todos: {
+        handler: function (todos) {
+            todoStorage.save(todos)
+        },
+        deep: true
+    }
+    },
+
+
     methods: {
       clearCompleted: function () {
         this.todos = this.todos.filter(todo => !todo.completed)
@@ -72,7 +98,7 @@
       },
       addTodo: function () {
         if (this.newTodoTitle) {
-          this.todos.push({ id: id++, title: this.newTodoTitle, completed: false });
+          this.todos.push({ id: todoStorage.uid++, title: this.newTodoTitle, completed: false });
           this.newTodoTitle = '';
         }
       },
